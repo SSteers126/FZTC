@@ -4,17 +4,21 @@ from PySide2.QtCore import (Qt, QSize, QRect)
 from PySide2.QtGui import (QPalette, QColor, QConicalGradient, QBrush, QGradient, QFont, QPixmap, QIcon)
 from PySide2.QtWidgets import (QVBoxLayout, QHBoxLayout, QStyleFactory, QLineEdit, QPushButton, QApplication,
                                QDialog, QLabel)
+import datetime
 import ctypes
 import os
+
 
 myappid = u'Zestyy.FZTC.GUI.V1' # these lines are used to seperate the app from the python 'umbrella'
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 calc_path = dir_path + "\\FZTC-Calculations\\"
+log_path = dir_path + "\\FZTC-Log\\"
 
 try:
     os.mkdir(calc_path)
+    os.mkdir(log_path)
 except:
     pass
 
@@ -165,41 +169,43 @@ class FZTC_window(QDialog):
         return result
         #(MAX - MIN)RATIO + MIN
     def calc(self):
-        accuracy = int(self.acc.text())
-        roll_max = float(self.rb_stiffness_max.text())
-        roll_min = float(self.rb_stiffness_min.text())
-        susp_max = float(self.stiffness_max.text())
-        susp_min = float(self.stiffness_min.text())
-        reb_max = float(self.rebound_max.text())
-        reb_min = float(self.rebound_min.text())
-        front_ratio = (float(self.ratio.text()))/100
-        rear_ratio = 1 - front_ratio
-        f_roll_result = round(self.formula(roll_max, roll_min, front_ratio), accuracy)
-        r_roll_result = round(self.formula(roll_max, roll_min, rear_ratio), accuracy)
-        f_susp_result = round(self.formula(susp_max, susp_min, front_ratio), accuracy)
-        r_susp_result = round(self.formula(susp_max, susp_min, rear_ratio), accuracy)
-        f_reb_result = round(self.formula(reb_max, reb_min, front_ratio), accuracy)
-        r_reb_result = round(self.formula(reb_max, reb_min, rear_ratio), accuracy)
-        f_bump_result = round(0.675*self.formula(reb_max, reb_min, front_ratio), accuracy)
-        r_bump_result = round(0.675*self.formula(reb_max, reb_min, rear_ratio), accuracy)
-        file_name = calc_path + (str(self.name.text())) + ".txt"
-        with open(file_name, "a+") as f:
-            f.write("Results (When in pairs, first value is front and second is rear):\n")
-            f.write("Rollbars: " + str(f_roll_result) + ", " + str(r_roll_result) + "\n")
-            f.write("Suspension stiffness: " + str(f_susp_result) + ", " + str(r_susp_result) + "\n")
-            f.write("Rebound stiffness: " + str(f_reb_result) + ", " + str(r_reb_result) + "\n")
-            f.write("Bump stiffness: " + str(f_bump_result) + ", " + str(r_bump_result) + "\n")
-        r = secrets.randbelow(255)
-        g = secrets.randbelow(255)
-        b = secrets.randbelow(255)
-        self.error_pallette.setColor(QPalette.Foreground, QColor(r, g, b))
-        self.error_text.setPalette(self.error_pallette)
-        self.error_text.setText("Calculated successfully!")
-
-
-
-
-
+        try:
+            accuracy = int(self.acc.text())
+            roll_max = float(self.rb_stiffness_max.text())
+            roll_min = float(self.rb_stiffness_min.text())
+            susp_max = float(self.stiffness_max.text())
+            susp_min = float(self.stiffness_min.text())
+            reb_max = float(self.rebound_max.text())
+            reb_min = float(self.rebound_min.text())
+            front_ratio = (float(self.ratio.text()))/100
+            rear_ratio = 1 - front_ratio
+            f_roll_result = round(self.formula(roll_max, roll_min, front_ratio), accuracy)
+            r_roll_result = round(self.formula(roll_max, roll_min, rear_ratio), accuracy)
+            f_susp_result = round(self.formula(susp_max, susp_min, front_ratio), accuracy)
+            r_susp_result = round(self.formula(susp_max, susp_min, rear_ratio), accuracy)
+            f_reb_result = round(self.formula(reb_max, reb_min, front_ratio), accuracy)
+            r_reb_result = round(self.formula(reb_max, reb_min, rear_ratio), accuracy)
+            f_bump_result = round(0.675*self.formula(reb_max, reb_min, front_ratio), accuracy)
+            r_bump_result = round(0.675*self.formula(reb_max, reb_min, rear_ratio), accuracy)
+            file_name = calc_path + (str(self.name.text())) + ".txt"
+            with open(file_name, "a+") as f:
+                f.write("Results (When in pairs, first value is front and second is rear):\n")
+                f.write("Rollbars: " + str(f_roll_result) + ", " + str(r_roll_result) + "\n")
+                f.write("Suspension stiffness: " + str(f_susp_result) + ", " + str(r_susp_result) + "\n")
+                f.write("Rebound stiffness: " + str(f_reb_result) + ", " + str(r_reb_result) + "\n")
+                f.write("Bump stiffness: " + str(f_bump_result) + ", " + str(r_bump_result) + "\n")
+            r = secrets.randbelow(255)
+            g = secrets.randbelow(255)
+            b = secrets.randbelow(255)
+            self.error_pallette.setColor(QPalette.Foreground, QColor(r, g, b))
+            self.error_text.setPalette(self.error_pallette)
+            self.error_text.setText("Calculated successfully!")
+        except Exception as e:
+            self.error_pallette.setColor(QPalette.Foreground, QColor(255, 0, 0))
+            self.error_text.setPalette(self.error_pallette)
+            with open((log_path + "log.txt"), "a+") as f:
+                f.write((datetime.datetime.now() + ": " + str(e) + "\n"))
+            self.error_text.setText("An error occured. Check the log for details")
 
 
 if __name__ == '__main__':
