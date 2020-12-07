@@ -1,0 +1,5 @@
+Results (When in pairs, first value is front and second is rear):
+Rollbars: 33.6, 32.4
+Suspension stiffness: 135.9, 132.4
+Rebound stiffness: 11.7, 11.3
+Bump stiffness: 7.9, 7.6
