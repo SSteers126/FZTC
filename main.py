@@ -8,6 +8,7 @@ import datetime
 import ctypes
 import os
 
+import resources
 
 myappid = u'Zestyy.FZTC.GUI.V1' # these lines are used to seperate the app from the python 'umbrella'
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
@@ -26,8 +27,10 @@ class FZTC_window(QDialog):
     def __init__(self, parent=None):
         super(FZTC_window, self).__init__(parent)
 
+        path = self.resource_path("N-Icon.ico")
+
         self.setWindowTitle("FZTC")
-        app.setWindowIcon(QIcon('src/Thumb.png'))
+        app.setWindowIcon(QIcon(path))
         QApplication.setStyle(QStyleFactory.create("fusion"))
         QApplication.setFont(QFont("Helvetica", 11, 60))  # Montserrat Medium
 
@@ -67,7 +70,7 @@ class FZTC_window(QDialog):
         self.setFixedSize(QSize(700, 600))
 
         self.logo = QLabel("")
-        img = QPixmap("src/Logo.png")
+        img = QPixmap(":/Logo.png")
         self.logo.setPixmap(img)
         self.logo.setGeometry(QRect(10, 40, img.width(), img.height()))
         self.logo.setAlignment(Qt.AlignCenter)
@@ -159,6 +162,16 @@ class FZTC_window(QDialog):
         self.setLayout(self.final_layout)
 
         self.calc_button.clicked.connect(lambda: self.calc())
+
+    def resource_path(self, relative_path):
+        """ Get absolute path to resource, works for dev and for PyInstaller """
+        try:
+            # PyInstaller creates a temp folder and stores path in _MEIPASS
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
+
+        return os.path.join(base_path, relative_path)
 
     def createStatusBar(self):
         self.error_text = QLabel("")
